@@ -100,3 +100,140 @@ class LoginApi(LoginView):
         login(request,user)
         response = super(LoginApi, self).post(request,format=None)
         return response
+
+
+class ChangeUsernameApi(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def post(self,request):
+        user_name = request.data['user_name']
+        if user_name:
+            try:
+                user=User.objects.get(user_phone=request.user.user_phone)
+                user.user_name = user_name
+                user.save()
+                return Response(data="name changes successfully")
+            except:
+                return Response(data="error occured")
+        else:
+            return Response(data="missed username")
+
+
+class PhoneNumberChangeApi(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def post(self,request):
+        user_phone = request.data['user_phone']
+        otp = request.data['otp']
+        if user_phone and otp:
+            phone = PhoneOtpVerify.objects.filter(user_phone=user_phone).first()
+            if phone:
+                if phone.expiry<timezone.now():
+                    phone.delete()
+                    return Response(data="session expired")
+                if phone.otp!=otp:
+                    return Response(data="otp not matched")
+                if phone.is_verified==True:
+                    return Response(data="Already updated")
+                phone.is_verified=True
+                phone.save()
+                user=User.objects.filter(user_phone=request.user.user_phone)
+                user.user_phone=user_phone
+                user.save()
+                return Response(data="phone number has changed successfully")
+            else:
+                return Response(data="otp not sent")
+        else:
+            return Response(data="missed some fields")
+
+
+class ResetPasswordOtpApi(APIView):
+
+    def post(self,request):
+        user_phone = request.data['user_phone']
+        user = User.objects.filter(user_phone=user_phone).first()
+        if user:
+            phone = PhoneOtpVerify.objects.filter(user_phone=user_phone)
+            if len(phone)>0:
+                phone.delete()
+            otp = random.randint(0,999999)
+            expiry = timezone.now()+timedelta(minutes=5)
+            PhoneOtpVerify.objects.create(user_phone=user_phone,otp=otp,expiry=expiry)
+            try:
+                client.messages.create(
+                    to="+91" + user_phone,
+                    from_="+16413815187",
+                    body="Verify otp " + str(otp)
+                )
+            except:
+                return Response({'detail': 'error occur in sending otp'})
+        return Response(data="phone number not exists")
+
+
+class ResetPasswordVerifyApi(APIView):
+
+    def post(self,request):
+        user_phone = request.data['user_phone']
+        otp = request.data['otp']
+        if user_phone and otp:
+            phone = PhoneOtpVerify.objects.filter(user_phone=user_phone)
+            if len(phone)>0:
+                phone = phone.first()
+                if phone.expiry<timezone.now():
+                    phone.delete()
+                    return Response(data="session expired")
+                if phone.otp == otp:
+                    if phone.is_verified==True:
+                        return Response(data="otp verified already")
+                    phone.is_verified=True
+                    phone.save()
+                    return Response(data="otp verified success")
+            return Response(data="otp not sent")
+        return Response(data="missed fields")
+
+
+class ResetPasswordApi(APIView):
+
+    def post(self,request):
+        user_phone = request.data['user_phone']
+        if user_phone:
+            phone = PhoneOtpVerify.objects.filter(user_phone=user_phone).first()
+            if phone:
+                if phone.is_verified==True:
+                    return Response(data="phone number not verified")
+            else:
+                return Response(data="phone number verified")
+            try:
+                user = User.objects.get(user_phone=user_phone)
+                user.set_password(request.data['password'])
+                user.save()
+                return Response(data="password reset success")
+            except:
+                return Response(data="error occured")
+
+
+class PasswordUpdateApi(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+
+    def post(self,request):
+        old_password=request.data['old_password']
+        new_password=request.data['new_password']
+        if old_password and new_password:
+            try:
+                user = User.objects.get(user_phone=request.user.user_phone)
+                if user.check_password(old_password):
+                    user.set_password(new_password)
+                    user.save()
+                    return Response(data="password updated successfully")
+                else:
+                    return Response(data="old password incorrect")
+            except:
+                return Response(data="error occured")
+        else:
+            return Response(data="missed some fields")
