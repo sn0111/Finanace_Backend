@@ -77,10 +77,31 @@ WSGI_APPLICATION = 'Res_Backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         # 'name': 'procuretaildata',
+#         'NAME':'finance'
+#     },
+#
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'djongo',
+        'CLIENT': {
+            'name': 'finance',
+            'host': 'mongodb+srv://Admin:finance@cluster0.o1iz7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+            'username': 'Admin',
+            'password': 'finance',
+            'authMechanism': 'SCRAM-SHA-1',
+        },
     }
 }
 

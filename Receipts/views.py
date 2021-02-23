@@ -75,18 +75,25 @@ class RegisterApi(generics.GenericAPIView):
     def post(self,request):
         user_phone = request.data['user_phone']
         if user_phone:
-            phone = PhoneOtpVerify.objects.filter(user_phone=user_phone).first()
-            if phone:
-                if phone.is_verified == True:
-                    serializer = self.get_serializer(data=request.data)
-                    serializer.is_valid(raise_exception=True)
-                    serializer.save()
-                    return Response({
-                        'detail': 'registered successfully',
-                        'token':AuthToken.objects.create(serializer)[1]
-                    })
-            else:
-                return Response({'detail':'you need to verify phone no'})
+            # phone = PhoneOtpVerify.objects.filter(user_phone=user_phone).first()
+            # if phone:
+            #     if phone.is_verified == True:
+            #         serializer = self.get_serializer(data=request.data)
+            #         serializer.is_valid(raise_exception=True)
+            #         user=serializer.save()
+            #         return Response({
+            #             'detail': 'registered successfully',
+            #             'token':AuthToken.objects.create(user)[1]
+            #         })
+            # else:
+            #     return Response({'detail':'you need to verify phone no'})
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user=serializer.save()
+            return Response({
+                'detail': 'registered successfully',
+                'token': AuthToken.objects.create(user)[1]
+            })
         return Response({'detail':'registered failed'})
 
 
@@ -237,3 +244,27 @@ class PasswordUpdateApi(APIView):
                 return Response(data="error occured")
         else:
             return Response(data="missed some fields")
+
+
+class CreateUserApi(generics.GenericAPIView):
+    serializer_class = UserSerializer
+
+    def post(self,request):
+        user = User.objects.create_superuser(
+            user_phone=request.data['user_phone'],
+            user_name=request.data['user_name'],
+            user_email=request.data.get('user_email'),
+            designation= request.data['designation'],
+            is_staff=True,
+            employee_id=request.data.get('employee_id'),
+            password="1234"
+        )
+        return Response(data="User created Successfully")
+
+
+class UserDetails(generics.ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        query = User.objects.all()
+        return query

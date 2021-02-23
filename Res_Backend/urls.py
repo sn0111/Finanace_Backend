@@ -8,7 +8,7 @@ from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(r'^docs/',include_docs_urls(title="Finanace")),
+    path(r'docs',include_docs_urls(title="Finanace")),
     path('fin/',include('Receipts.urls')),
     re_path(r'^.*',views.index,name="index")
 ]

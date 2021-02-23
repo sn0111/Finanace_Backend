@@ -3,6 +3,15 @@ from Receipts.models import *
 from res.models import *
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_name','user_phone','user_email','designation','employee_id']
+
+    def create(self,validated_data):
+        return User.objects.create_superuser(**validated_data)
+
+
 class PhoneOtpVerifySerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -17,4 +26,4 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['user_name','user_phone','user_email','password']
 
     def create(self,validated_data):
-        return User.objects.create_user(**validated_data)
+        return User.objects.create_superuser(**validated_data)
