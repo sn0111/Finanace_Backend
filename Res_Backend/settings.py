@@ -28,6 +28,14 @@ DEBUG = True
 ALLOWED_HOSTS = ['65.0.106.44','localhost']
 
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
+]  # If this is used, then not need to use `CORS_ORIGIN_ALLOW_ALL = True`
+CORS_ORIGIN_REGEX_WHITELIST = [
+    'http://localhost:3000',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,12 +49,15 @@ INSTALLED_APPS = [
     'rest_framework',
     'Receipts',
     'knox',
+    'corsheaders',
+    'channels',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -73,16 +84,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Res_Backend.wsgi.application'
 
-
+ASGI_APPLICATION = 'Res_Backend.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'djongo',
@@ -92,18 +111,18 @@ WSGI_APPLICATION = 'Res_Backend.wsgi.application'
 #
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'djongo',
-        'CLIENT': {
-            'name': 'finance',
-            'host': 'mongodb+srv://Admin:finance@cluster0.o1iz7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
-            'username': 'Admin',
-            'password': 'finance',
-            'authMechanism': 'SCRAM-SHA-1',
-        },
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'CLIENT': {
+#             'name': 'finance',
+#             'host': 'mongodb+srv://Admin:finance@cluster0.o1iz7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+#             'username': 'Admin',
+#             'password': 'finance',
+#             'authMechanism': 'SCRAM-SHA-1',
+#         },
+#     }
+# }
 
 
 # Password validation
