@@ -90,9 +90,11 @@ class RegisterApi(generics.GenericAPIView):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user=serializer.save()
+            token = AuthToken.objects.create(user)
             return Response({
                 'detail': 'registered successfully',
-                'token': AuthToken.objects.create(user)[1]
+                'expiry':token[0],
+                'token': token[1]
             })
         return Response({'detail':'registered failed'})
 
@@ -246,23 +248,32 @@ class PasswordUpdateApi(APIView):
             return Response(data="missed some fields")
 
 
-class CreateUserApi(generics.GenericAPIView):
-    serializer_class = UserSerializer
+class CreateUserApi(APIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    # serializer_class = UserSerializer
 
     def post(self,request):
-        user = User.objects.create_superuser(
-            user_phone=request.data['user_phone'],
-            user_name=request.data['user_name'],
-            user_email=request.data.get('user_email'),
-            designation= request.data['designation'],
-            is_staff=True,
-            employee_id=request.data.get('employee_id'),
-            password="1234"
-        )
+        try:
+            user = User.objects.create_superuser(
+                user_phone=request.data['user_phone'],
+                user_name=request.data['user_name'],
+                user_email=request.data.get('user_email'),
+                designation= request.data['designation'],
+                is_staff=True,
+                employee_id=request.data.get('employee_id'),
+                password="1234"
+            )
+        except:
+            return Response(data="user not created")
         return Response(data="User created Successfully")
 
 
 class UserDetails(generics.ListAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
     serializer_class = UserSerializer
 
     def get_queryset(self):
