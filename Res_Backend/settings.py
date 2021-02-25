@@ -96,12 +96,12 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#     }
+# }
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'djongo',
@@ -111,18 +111,18 @@ DATABASES = {
 #
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'djongo',
-#         'CLIENT': {
-#             'name': 'finance',
-#             'host': 'mongodb+srv://Admin:finance@cluster0.o1iz7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
-#             'username': 'Admin',
-#             'password': 'finance',
-#             'authMechanism': 'SCRAM-SHA-1',
-#         },
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'djongo',
+        'CLIENT': {
+            'name': 'finance',
+            'host': 'mongodb+srv://Admin:finance@cluster0.o1iz7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+            'username': 'Admin',
+            'password': 'finance',
+            'authMechanism': 'SCRAM-SHA-1',
+        },
+    }
+}
 
 
 # Password validation
