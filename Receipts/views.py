@@ -93,7 +93,6 @@ class RegisterApi(generics.GenericAPIView):
             token = AuthToken.objects.create(user)
             return Response({
                 'detail': 'registered successfully',
-                'expiry':token[0],
                 'token': token[1]
             })
         return Response({'detail':'registered failed'})
